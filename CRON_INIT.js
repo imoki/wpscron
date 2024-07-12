@@ -2,7 +2,7 @@
     作者: imoki
     仓库: https://github.com/imoki/
     公众号：默库
-    更新时间：20240712
+    更新时间：20240712-b
     脚本：CRON_INIT.js 初始化程序，自动生成定时任务配置表。支持普通表格和智能表格。
     说明：要运行CRON.js之前，请先运行CRON_INIT脚本。
           并对表进行配置，第一次运行CRON_INIT会生成wps表，请先填写好wps表的内容。
