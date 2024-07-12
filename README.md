@@ -1,8 +1,8 @@
 # 🎉 金山文档智能调整定时任务时间程序
 <div align="center">
     <img src="https://socialify.git.ci/imoki/wpscron/image?description=1&font=Rokkitt&forks=1&issues=1&language=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Dark">
-<h1>金山文档智能调定时</h1>
-基于「金山文档」的智能定时任务调整程序
+<!-- <h1>金山文档智能调定时</h1> -->
+基于「金山文档」的智能调时程序
 
 <div id="shield">
 
@@ -37,7 +37,7 @@
 1. wps_sid ： 填写wps文档内抓包得到的wps_sid
 2. 文档名 : 填写需要修改定时任务时间的文档名称
 3. 是否调整 ： 选项填“是”则会对其进行时间调整，默认为“否”是排除这个任务不会进行调整
-4. 时间范围 ： 允许的最小时~最大时。例如:8~13，代表调整后时间超过14点(14:xx)后会自动调整为8:xx
+4. 时间范围 ： 允许的最小时到最大时。例如:8-13，代表调整后时间超过14点(14:xx)后会自动调整为8:xx
 
 ## 🚀 其他
 如果手动修改了定时任务时间，请重新运行一次CRON_INIT脚本，会自动生成最新的CRON配置表
@@ -48,7 +48,6 @@
 [![][pr-welcome-shield]][pr-welcome-link]
 
 ### 💗 感谢我们的贡献者
-<br>
 [![][github-contrib-shield]][github-contrib-link]
 
 
