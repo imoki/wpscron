@@ -3,7 +3,7 @@
     仓库: https://github.com/imoki/
     公众号：默库
     更新时间：20240712
-    脚本：CRON_INIT.js 初始化程序，自动生成定时任务配置表
+    脚本：CRON_INIT.js 初始化程序，自动生成定时任务配置表。支持普通表格和智能表格。
     说明：要运行CRON.js之前，请先运行CRON_INIT脚本。
           并对表进行配置，第一次运行CRON_INIT会生成wps表，请先填写好wps表的内容。
           然后再运行一次CRON_INIT表生成CRON表，对CRON表进行配置。
@@ -16,7 +16,7 @@ let sheetNameCron = "CRON"
 var cookie = ""
 var taskArray = []
 var headers = ""
-var count = "3" // 读取的文档页数
+var count = "20" // 读取的文档页数
 // 表中激活的区域的行数和列数
 var row = 0;
 var col = 0;
@@ -178,7 +178,7 @@ function getFile(url){
 function juiceXLSX(name){
   let flag = 0
   let array= name.split(".") // 使用|作为分隔符
-  if(array.length == 2 && array[1] == "xlsx"){
+  if(array.length == 2 && (array[1] == "xlsx" || array[1] == "ksheet")){
     flag = 1
   }
   return flag 
