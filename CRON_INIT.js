@@ -2,7 +2,7 @@
     作者: imoki
     仓库: https://github.com/imoki/
     公众号：默库
-    更新时间：20240712-b
+    更新时间：20240714
     脚本：CRON_INIT.js 初始化程序，自动生成定时任务配置表。支持普通表格和智能表格。
     说明：要运行CRON.js之前，请先运行CRON_INIT脚本。
           并对表进行配置，第一次运行CRON_INIT会生成wps表，请先填写好wps表的内容。
@@ -17,6 +17,7 @@ var cookie = ""
 var taskArray = []
 var headers = ""
 var count = "20" // 读取的文档页数
+var excludeDocs = []
 // 表中激活的区域的行数和列数
 var row = 0;
 var col = 0;
@@ -98,8 +99,12 @@ function getWpsSid(){
   if (1) {
     console.log("🍳 开始读取wps配置表");
     for (let i = 2; i <= 100; i++) {
+      // 读取wps表格配置
       wps_sid = Application.Range("A" + i).Text; // 以第一个wps为准
       // name = Application.Range("H" + i).Text;
+      
+      excludeDocs = Application.Range("C" + i).Text.split("&")
+
       break
     }
   }
@@ -126,43 +131,50 @@ function getFile(url){
     fileid = roaming["fileid"]
     name = roaming["name"]
     if(juiceXLSX(name)){
-      console.log("🍳 已找到 " + name + " 文档")
-      cronlist = taskExist(fileid)
-      if(cronlist.length > 0){
-        console.log("🎉 存在定时任务")
-        // console.log(cronlist)
-        for(let i = 0; i < cronlist.length; i++){
-          
-          task = cronlist[i]
-          task_id = task["task_id"]
-          script_id = task["script_id"]
-          script_name = task["script_name"]
+      // console.log(name.split(".")[0])
+      if(juiceDocs(name.split(".")[0])){
+        console.log("🏹 排除 " + name + " 文档")
+      }else{
+        console.log("🎯 存在 " + name + " 文档")
+        cronlist = taskExist(fileid)
+        if(cronlist.length > 0){
+          console.log("🎉 存在定时任务")
+          // console.log(cronlist)
+          for(let i = 0; i < cronlist.length; i++){
+            
+            task = cronlist[i]
+            task_id = task["task_id"]
+            script_id = task["script_id"]
+            script_name = task["script_name"]
 
-          cron_detail = task["cron_detail"]
-          cron_desc = cron_detail["cron_desc"]
-          cron_type = cron_desc["cron_type"]
-          day_of_month = cron_desc["day_of_month"]
-          day_of_week = cron_desc["day_of_week"]
-          // month = cron_desc["month"]
-          hour = cron_desc["hour"]
-          minute = cron_desc["minute"]
-          // year = cron_desc["year"]
-          // file_id = fileid
-          taskArray.push({
-            "filename" : name,
-            "fileid" : fileid,
-            "script_id" : script_id,
-            "script_name" : script_name,
-            "task_id" : task_id,
-            "cron_type":cron_type,
-            "day_of_month": day_of_month,
-            "day_of_week": day_of_week,
-            "hour"  : hour,
-            "minute" : minute,
-          })
+            cron_detail = task["cron_detail"]
+            cron_desc = cron_detail["cron_desc"]
+            cron_type = cron_desc["cron_type"]
+            day_of_month = cron_desc["day_of_month"]
+            day_of_week = cron_desc["day_of_week"]
+            // month = cron_desc["month"]
+            hour = cron_desc["hour"]
+            minute = cron_desc["minute"]
+            // year = cron_desc["year"]
+            // file_id = fileid
+            taskArray.push({
+              "filename" : name,
+              "fileid" : fileid,
+              "script_id" : script_id,
+              "script_name" : script_name,
+              "task_id" : task_id,
+              "cron_type":cron_type,
+              "day_of_month": day_of_month,
+              "day_of_week": day_of_week,
+              "hour"  : hour,
+              "minute" : minute,
+            })
 
+          }
         }
+
       }
+      
 
 
       // console.log("🍳 file_id : " + file_id)
@@ -181,6 +193,24 @@ function juiceXLSX(name){
   if(array.length == 2 && (array[1] == "xlsx" || array[1] == "ksheet")){
     flag = 1
   }
+  return flag 
+}
+
+// 判断是否为要排除文件
+function juiceDocs(name){
+  let flag = 0
+  if((excludeDocs.length == 1 && excludeDocs[0] == "") || excludeDocs.length == 0){
+    flag = 0
+    // console.log("excludeDocs不符合")
+  }else{
+    for(let i= 0; i<excludeDocs.length; i++){
+      if(name == excludeDocs[i]){
+        flag = 1  // 找到要排除的文档了
+        // console.log("找到要排除的文档了")
+      }
+    }
+  }
+  
   return flag 
 }
 
@@ -330,11 +360,11 @@ function createWpsConfig(){
   {
     // wps表内容
     let content = [
-      ['wps_sid', '任务配置表超链接',],
-      ['此处填写wps_sid', '点击此处跳转到CRON表',]
+      ['wps_sid', '任务配置表超链接', '排除文档'],
+      ['此处填写wps_sid', '点击此处跳转到CRON表', '']
     ]
     determineRowCol() // 读取函数
-    if(row <= 1){ // 说明是空表或只有表头未填写内容
+    if(row <= 1 || col < content[0].length){ // 说明是空表或只有表头未填写内容，或者表格有新增列内容则需要先填写
       // console.log(row)
       flagExitContent = 0 // 原先不存在内容，告诉用户先填内容
       editConfigSheet(content)
@@ -344,7 +374,6 @@ function createWpsConfig(){
       let link_name ='=HYPERLINK("#'+link+'!$A$1","'+name+'")' //设置超链接
       //console.log(link_name)  // HYPERLINK("#PUSH!$A$1","PUSH")
       Application.Range("B2").Value = link_name
-
     }
   }
 
@@ -361,6 +390,7 @@ function main(){
   }else{
     wps_sid = getWpsSid() // 获取wps_sid
     cookie = "wps_sid=" + wps_sid // 获取cookie
+    // console.log(excludeDocs)
 
     headers = {
       "Cookie": cookie,
