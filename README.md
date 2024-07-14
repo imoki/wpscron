@@ -41,8 +41,8 @@
 7. 将CRON脚本加入定时任务
 
 ## ⭐ 表格参考例子
-![alt text](docs/wps.png)
-![alt text](docs/CRON.png)
+![wps表](https://s3.bmp.ovh/imgs/2024/07/14/9045db168c0875ee.png)
+![CRON表](https://s3.bmp.ovh/imgs/2024/07/14/dc9fcfdf5ba3eb7c.png)
 
 ## 🧾 表格内容含义 
 1. wps_sid ： 填写wps文档内抓包得到的wps_sid
