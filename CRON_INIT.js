@@ -16,8 +16,9 @@ let sheetNameCron = "CRON"
 var cookie = ""
 var taskArray = []
 var headers = ""
-var count = "20" // 读取的文档页数
+var count = "4" // 读取的文档页数
 var excludeDocs = []
+var onlyDocs = [] // 仅读取哪些文档
 // 表中激活的区域的行数和列数
 var row = 0;
 var col = 0;
@@ -104,6 +105,7 @@ function getWpsSid(){
       // name = Application.Range("H" + i).Text;
       
       excludeDocs = Application.Range("C" + i).Text.split("&")
+      onlyDocs = Application.Range("D" + i).Text.split("&")
 
       break
     }
@@ -132,47 +134,50 @@ function getFile(url){
     name = roaming["name"]
     if(juiceXLSX(name)){
       // console.log(name.split(".")[0])
-      if(juiceDocs(name.split(".")[0])){
+      if(juiceDocs(name.split(".")[0])){  // 排除的文档
         console.log("🏹 排除 " + name + " 文档")
       }else{
-        console.log("🎯 存在 " + name + " 文档")
-        cronlist = taskExist(fileid)
-        if(cronlist.length > 0){
-          console.log("🎉 存在定时任务")
-          // console.log(cronlist)
-          for(let i = 0; i < cronlist.length; i++){
-            
-            task = cronlist[i]
-            task_id = task["task_id"]
-            script_id = task["script_id"]
-            script_name = task["script_name"]
 
-            cron_detail = task["cron_detail"]
-            cron_desc = cron_detail["cron_desc"]
-            cron_type = cron_desc["cron_type"]
-            day_of_month = cron_desc["day_of_month"]
-            day_of_week = cron_desc["day_of_week"]
-            // month = cron_desc["month"]
-            hour = cron_desc["hour"]
-            minute = cron_desc["minute"]
-            // year = cron_desc["year"]
-            // file_id = fileid
-            taskArray.push({
-              "filename" : name,
-              "fileid" : fileid,
-              "script_id" : script_id,
-              "script_name" : script_name,
-              "task_id" : task_id,
-              "cron_type":cron_type,
-              "day_of_month": day_of_month,
-              "day_of_week": day_of_week,
-              "hour"  : hour,
-              "minute" : minute,
-            })
+        if(juiceOnlyRead(name.split(".")[0])){  // 是否是仅读取的文档。不在此列表的都不去
+          console.log("🎯 存在 " + name + " 文档")
+          cronlist = taskExist(fileid)
+          if(cronlist.length > 0){
+            console.log("🎉 存在定时任务")
+            // console.log(cronlist)
+            for(let i = 0; i < cronlist.length; i++){
+              
+              task = cronlist[i]
+              task_id = task["task_id"]
+              script_id = task["script_id"]
+              script_name = task["script_name"]
 
+              cron_detail = task["cron_detail"]
+              cron_desc = cron_detail["cron_desc"]
+              cron_type = cron_desc["cron_type"]
+              day_of_month = cron_desc["day_of_month"]
+              day_of_week = cron_desc["day_of_week"]
+              // month = cron_desc["month"]
+              hour = cron_desc["hour"]
+              minute = cron_desc["minute"]
+              // year = cron_desc["year"]
+              // file_id = fileid
+              taskArray.push({
+                "filename" : name,
+                "fileid" : fileid,
+                "script_id" : script_id,
+                "script_name" : script_name,
+                "task_id" : task_id,
+                "cron_type":cron_type,
+                "day_of_month": day_of_month,
+                "day_of_week": day_of_week,
+                "hour"  : hour,
+                "minute" : minute,
+              })
+
+            }
           }
-        }
 
+        }
       }
       
 
@@ -207,6 +212,24 @@ function juiceDocs(name){
       if(name == excludeDocs[i]){
         flag = 1  // 找到要排除的文档了
         // console.log("找到要排除的文档了")
+      }
+    }
+  }
+  
+  return flag 
+}
+
+// 判断是否为仅读取的文档
+function juiceOnlyRead(name){
+  let flag = 0  // 不读取
+  if(onlyDocs == "@all"){
+    flag = 1  // 所有都读取
+    // console.log("所有都读取")
+  }else{
+    for(let i= 0; i<onlyDocs.length; i++){
+      if(name == onlyDocs[i]){
+        flag = 1  // 找到要读取的文档了
+        // console.log("找到要读取的文档了")
       }
     }
   }
@@ -360,8 +383,8 @@ function createWpsConfig(){
   {
     // wps表内容
     let content = [
-      ['wps_sid', '任务配置表超链接', '排除文档'],
-      ['此处填写wps_sid', '点击此处跳转到CRON表', '']
+      ['wps_sid', '任务配置表超链接', '排除文档', '仅读取文档'],
+      ['此处填写wps_sid', '点击此处跳转到CRON表', '', '@all']
     ]
     determineRowCol() // 读取函数
     if(row <= 1 || col < content[0].length){ // 说明是空表或只有表头未填写内容，或者表格有新增列内容则需要先填写
