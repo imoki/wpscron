@@ -2,15 +2,13 @@
     作者: imoki
     仓库: https://github.com/imoki/
     公众号：默库
-    更新时间：20240713
+    更新时间：20240715
     脚本：CRON.js 主程序，动态修改定时任务时间
     说明：再运行此CRON脚本前，请先运行CRON_INIT脚本，并配置好CRON表格的内容。
           将CRON.js加入定时任务即可自动修改定时任务时间。
-          修改规则为每次往后推1小时
 */
 
-// 修改名称为“wps”表内的值，需要填“wps_sid”和“文档名”
-// wps_sid抓包获得，文档名就是你这个文档的名称
+// 修改名称为“wps”表内的值，需要填“wps_sid”，wps_sid抓包获得
 
 // 不要修改代码，修改wps表表格内的值即可
 var filename = "" // 文件名
@@ -81,17 +79,25 @@ function rangeHM(value){
   let rule = /~/i;
   let flagTrue = rule.test(value); // 判断是否存在字符串
   if (flagTrue == true) {
-    console.log("🍳 使用规则1进行时间生成")
+    console.log("🍳 使用 规则1-例如：8~13 进行时间生成")
     return 1
+  } 
+
+  rule = /\?/i;
+  flagTrue = rule.test(value); // 判断是否存在字符串
+  if (flagTrue == true) {
+    console.log("🍳 使用 规则3-例如：6:?&?:?&?:30 进行时间生成")
+    return 3
   } 
 
   rule = /&/i;
   flagTrue = rule.test(value); // 判断是否存在字符串
   if (flagTrue == true) {
-    console.log("🍳 使用规则2进行时间生成")
+    console.log("🍳 使用 规则2-例如：8&10&11 进行时间生成")
     return 2
   } 
 
+  console.log("🍳 使用 规则0 随机时间生成")
   return 0
   // let keyarry= value.split("~") // 使用|作为分隔符
   // // hourMin = keyarry[0]
@@ -120,8 +126,16 @@ function arraySortUp(value){
   return value
 }
 
+// 生成指定范围内的随机数
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // 生成时间
 function createTime(hour, minute, hmrange){
+  console.log("⚓ 原定时时间：", hour,":",  minute)
   hour = parseInt(hour)
   minute = parseInt(minute)
   
@@ -141,8 +155,8 @@ function createTime(hour, minute, hmrange){
   if(rule == 1){
     let keyarry= hmrange.split("~") // 使用|作为分隔符
     // hourMin = keyarry[0]
-    hourMin = keyarry[0]
-    hourMax = keyarry[1]
+    hourMin = parseInt(keyarry[0])
+    hourMax = parseInt(keyarry[1])
 
     hour = hour + 1
     minute = minute + 1
@@ -154,7 +168,7 @@ function createTime(hour, minute, hmrange){
       minute = 0
     }
 
-  }else{
+  }else if(rule==2){
     // 规则2：8&10&11
     let keyarry= hmrange.split("&") // 使用|作为分隔符
     keyarry = arraySortUp(keyarry)  // 升序排序
@@ -174,18 +188,62 @@ function createTime(hour, minute, hmrange){
     }
 
     // 查找最小值
-
     if(!flagChange){  // 如果时间没变动， 说明当前时间已经时最大了，则置为最小值
       hour = parseInt(keyarry[0]) // 则直接置为第一个值
     }
 
+  }else if(rule==3){
+    // 规则3：8:?&7:?&?:?
 
+    let keyarry= hmrange.split("&") // 分隔符
+    let hmarray = keyarry[0]  // 查找指定的一对时分，默认为第一个
+
+    // &分隔代表依次变成
+    for(let j=0; j < keyarry.length; j++){
+      // console.log(keyarry[j].split(":")[0])
+      // 先找找有没有一样的，从一样的下一个开始变时间
+      if(keyarry[j].split(":")[0] == hour){ // 当前时间不是和列表一样
+        flagFind = 1
+        // 找到一样的了
+        // if(j == keyarry.length - 1){  // 是最后一个，那么就取第一个
+        //   hmarray = keyarry[0]
+        //   break
+        // }
+        hmarray = keyarry[(j + 1) % keyarry.length] // 是最后一个，那么就取第一个
+        break
+      }
+    }
+
+    // 开始变值
+
+    let array2 = hmarray.split(":")
+    // console.log(array2)
+    hourRandom = array2[0]
+    minuteRandom = array2[1]
+    // console.log(hourRandom, minuteRandom)
+    if(hourRandom == "?"){
+      // 随机生成时间
+      hour = getRandomInt(0, 23);
+      // console.log("随机生成时")
+    }else{
+      hour = hourRandom
+    }
+
+    if(minuteRandom == "\?"){
+      // 随机生成时间
+      // console.log("随机生成分")
+      minute = getRandomInt(0, 60);
+      // console.log(minute)
+      
+    }else{
+      minute = minuteRandom
+    }
+  }else{
+    // 所有规则都不是
+    // 则随机生成
+    hour = getRandomInt(0, 23);
+    minute = getRandomInt(0, 60);
   }
-
-
-  
-
-
 
     
   newHM = [hour.toString(), minute.toString()]
