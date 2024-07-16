@@ -2,7 +2,7 @@
     作者: imoki
     仓库: https://github.com/imoki/
     公众号：默库
-    更新时间：20240715
+    更新时间：20240716
     脚本：CRON.js 主程序，动态修改定时任务时间
     说明：再运行此CRON脚本前，请先运行CRON_INIT脚本，并配置好CRON表格的内容。
           将CRON.js加入定时任务即可自动修改定时任务时间。
@@ -97,6 +97,14 @@ function rangeHM(value){
     return 2
   } 
 
+  // 仅有“:”  如：8:10
+  rule = /:/i;
+  flagTrue = rule.test(value); // 判断是否存在字符串
+  if (flagTrue == true) {
+    console.log("🍳 使用 规则2-例如：8&10&11 进行时间生成")
+    return 2
+  } 
+
   console.log("🍳 使用 规则0 随机时间生成")
   return 0
   // let keyarry= value.split("~") // 使用|作为分隔符
@@ -122,6 +130,27 @@ function arraystrToint(array){
 function arraySortUp(value){
   value.sort(function(a, b) {
     return a - b; // 升序排序
+  });
+  return value
+}
+
+// 数组-字典字符串转整形
+function dictarraystrToint(array){
+  let result = []
+  for(let i=0; i<array.length; i++){
+    result.push({
+        "hour" : parseInt(array[i]["hour"]),
+        "minute" : parseInt(array[i]["minute"]),
+      })
+  }
+  return result
+}
+
+// 数组-字典升序排序
+function dictarraySortUp(value){
+  value.sort(function(a, b) {
+    // console.log(a, b)
+    return a["hour"] - b["hour"]; // 升序排序
   });
   return value
 }
@@ -170,18 +199,53 @@ function createTime(hour, minute, hmrange){
 
   }else if(rule==2){
     // 规则2：8&10&11
-    let keyarry= hmrange.split("&") // 使用|作为分隔符
-    keyarry = arraySortUp(keyarry)  // 升序排序
-    keyarry = arraystrToint(keyarry)  // 转整形
+    // 具体时间：8:20&10:10
+    let keyarry= hmrange.split("&") // 使用&作为分隔符
+    let hourarry = []
+    for(let k = 0; k < keyarry.length; k++){
+      hourarry.push({
+        "hour" : keyarry[k].split(":")[0],
+        "minute" : keyarry[k].split(":")[1],
+      })
+    }
+    // console.log(hourarry)
+
+    // keyarry = arraySortUp(keyarry)  // 升序排序
+    // keyarry = arraystrToint(keyarry)  // 转整形
+    hourarry = dictarraySortUp(hourarry)  // 升序排序
+    // console.log(hourarry)
+    hourarry = dictarraystrToint(hourarry)  // 转整形
+    // console.log(hourarry)
+
+
     // console.log(keyarry)
     // console.log(hour)
     let flagChange = 0  // 查看时间是否变化
-    for(let j=0; j < keyarry.length; j++){
-      let hourExpect = keyarry[j]
+    // for(let j=0; j < keyarry.length; j++){
+    //   let hourExpect = keyarry[j]
+    //   // console.log(hourExpect)
+    //   if(hour < hourExpect){
+    //     // 取第一个遇到比原先大的值，就变为它
+    //     hour = hourExpect
+    //     flagChange = 1
+    //     break
+    //   }
+    // }
+
+    for(let j=0; j < hourarry.length; j++){
+      let hourExpect = hourarry[j]["hour"]
+      let minuteExpect = hourarry[j]["minute"]
       // console.log(hourExpect)
       if(hour < hourExpect){
         // 取第一个遇到比原先大的值，就变为它
         hour = hourExpect
+        // console.log(String(minuteExpect))
+        if(String(minuteExpect) == "NaN"){
+          // console.log("minuteExpect 为空")
+        }else{
+          minute = minuteExpect
+        }
+        
         flagChange = 1
         break
       }
