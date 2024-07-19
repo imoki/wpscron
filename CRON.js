@@ -2,7 +2,7 @@
     作者: imoki
     仓库: https://github.com/imoki/
     公众号：默库
-    更新时间：20240716
+    更新时间：20240719
     脚本：CRON.js 主程序，动态修改定时任务时间
     说明：再运行此CRON脚本前，请先运行CRON_INIT脚本，并配置好CRON表格的内容。
           将CRON.js加入定时任务即可自动修改定时任务时间。
@@ -253,7 +253,22 @@ function createTime(hour, minute, hmrange){
 
     // 查找最小值
     if(!flagChange){  // 如果时间没变动， 说明当前时间已经时最大了，则置为最小值
-      hour = parseInt(keyarry[0]) // 则直接置为第一个值
+
+      // 无:， 即 6&8&10
+      // hour = parseInt(keyarry[0]) // 则直接置为第一个值
+
+      // 无:， 即 6&8&10
+      // 有:， 即 6:10
+      let hourExpect = hourarry[0]["hour"]
+      let minuteExpect = hourarry[0]["minute"]
+      hour = hourExpect
+      // console.log(String(minuteExpect))
+      if(String(minuteExpect) == "NaN"){
+        // console.log("minuteExpect 为空")
+      }else{
+        minute = minuteExpect
+      }
+
     }
 
   }else if(rule==3){
@@ -448,7 +463,7 @@ function main(){
         hm = Application.Range("H" + i).Text;
         extra = Application.Range("I" + i).Text;
         console.log("🧑 开始任务修改：" , file_name, "-", task_name )
-        let keyarry= hm.split(":") // 使用|作为分隔符
+        let keyarry= hm.split(":") // 使用:作为分隔符
 
         hour = parseInt(keyarry[0])
         minute = parseInt(keyarry[1])
