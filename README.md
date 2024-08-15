@@ -67,8 +67,8 @@
 
 [![][pr-welcome-shield]][pr-welcome-link]
 
-### 💗 感谢我们的贡献者
-[![][github-contrib-shield]][github-contrib-link]
+<!-- ### 💗 感谢我们的贡献者
+[![][github-contrib-shield]][github-contrib-link] -->
 
 
 ## ✨ Star 数
