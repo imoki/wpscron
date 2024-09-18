@@ -2,6 +2,7 @@
 <div align="center">
     <img src="https://socialify.git.ci/imoki/wpscron/image?description=1&font=Rokkitt&forks=1&issues=1&language=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Dark">
 <h1>默调时</h1>
+<h1>（已失效）</h1>
 基于「金山文档」的智能调时程序
 
 <div id="shield">
